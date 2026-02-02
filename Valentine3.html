@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>For You ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- VARIABEL WARNA --- */
+        :root {
+            --primary: #ff4d4d;
+            --bg-pink: #ffbfbf;
+            --card-white: rgba(255, 255, 255, 0.95);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-pink);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* --- CARD STYLE (WADAH UTAMA) --- */
+        .card {
+            background: var(--card-white);
+            padding: 40px 30px;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .hidden { display: none !important; }
+
+        h1 { color: var(--primary); font-size: 1.8rem; margin-bottom: 10px; }
+        p { color: #555; font-size: 1rem; margin-bottom: 25px; }
+        .poetic-text { font-family: 'Dancing Script', cursive; font-size: 1.6rem; color: #d63384; margin-bottom: 20px; }
+        .gif-container img { width: 240px; border-radius: 15px; mix-blend-mode: multiply; }
+
+        /* --- TOMBOL STANDAR --- */
+        .btn-style {
+            font-family: 'Poppins', sans-serif; font-weight: 600; border: none;
+            padding: 12px 25px; border-radius: 50px; cursor: pointer; font-size: 1rem;
+            transition: transform 0.2s; min-width: 100px;
+        }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(255,77,77,0.3); }
+        .btn-secondary { background: white; color: var(--primary); border: 2px solid var(--primary); }
+        .btn-style:hover { transform: scale(1.05); }
+
+        /* --- CSS AMPLOPT (PAGE 1) --- */
+        .envelope-wrapper {
+            position: relative; width: 200px; height: 140px; margin: 0 auto 10px;
+            background: #ff6b6b; cursor: pointer;
+            border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
+        }
+        /* Bagian Dalam Amplop (Kertas Surat) */
+        .letter-paper {
+            position: absolute; bottom: 0; left: 10%; width: 80%; height: 80%;
+            background: white; transition: transform 0.5s ease;
+            z-index: 1; border-radius: 5px;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .letter-paper span { font-size: 40px; } /* Icon hati di kertas */
+        
+        /* Lipatan Amplop */
+        .envelope-flap {
+            position: absolute; top: 0; left: 0; width: 0; height: 0;
+            border-left: 100px solid transparent; border-right: 100px solid transparent;
+            border-top: 70px solid #ff3333; /* Warna Flap */
+            transform-origin: top; transition: transform 0.4s ease;
+            z-index: 3;
+        }
+        .envelope-pocket {
+            position: absolute; bottom: 0; left: 0; width: 0; height: 0;
+            border-left: 100px solid #ff4d4d; border-right: 100px solid #ff4d4d;
+            border-top: 70px solid transparent; border-bottom: 70px solid #ff4d4d;
+            z-index: 2; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px;
+        }
+        /* Hover Effect: Buka Flap & Angkat Surat */
+        .envelope-wrapper:hover .envelope-flap { transform: rotateX(180deg); }
+        .envelope-wrapper:hover .letter-paper { transform: translateY(-23px); }
+
+        /* --- LAYOUT PAGE 4 (YES/NO SEIMBANG) --- */
+        .btn-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px; /* Jarak awal antar tombol (PENTING UNTUK HITUNGAN) */
+            position: relative;
+            height: 100px;
+            width: 100%;
+        }
+        
+        #yesBtn {
+            position: relative;
+            /* PENTING: Membesar dari tengah agar seimbang */
+            transform-origin: center; 
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1; /* Di bawah */
+        }
+
+        #noBtn {
+            position: relative;
+            transition: transform 0.3s ease-out;
+            z-index: 1; /* Sejajar, tidak menimpa */
+        }
+
+        /* Fullscreen class tetap sama */
+        .full-screen-yes {
+            position: fixed !important; top: 0; left: 0;
+            width: 100vw !important; height: 100vh !important;
+            transform: none !important; border-radius: 0 !important;
+            font-size: 5rem !important; display: flex; justify-content: center; align-items: center;
+            z-index: 9999 !important;
+        }
+
+        /* --- EXTRAS HOVER EFFECTS (PAGE 5) --- */
+        .polaroid-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 20px 0; }
+        .polaroid {
+            background: white; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transform: rotate(var(--rotation)); transition: transform 0.3s ease;
+        }
+        .polaroid img { width: 100%; height: 70px; object-fit: cover; }
+        
+        /* Revisi: Foto membesar saat di-hover */
+        .polaroid:hover { transform: scale(2.15) rotate(0deg) !important; z-index: 10; }
+
+        /* Revisi: Kado membesar saat di-hover */
+        .gift-area { cursor: pointer; height: 180px; position: relative; margin-top: 20px; }
+        .gift-area img { 
+            width: 140px; position: absolute; left: 50%; transform: translateX(-50%); 
+            transition: transform 0.3s ease, opacity 0.5s; mix-blend-mode: multiply;
+        }
+        .gift-area:hover #gift-box { transform: translateX(-50%) scale(1.30); } /* Membesar saat hover */
+
+        .flower-hidden { opacity: 0; transform: translateX(-50%) scale(0.5); }
+        .flower-shown { opacity: 1; transform: translateX(-50%) scale(2.30); }
+        
+        /* Hati Terbang */
+        @keyframes floatUp { to { transform: translateY(-100vh); opacity: 0; } }
+        .floating-heart { position: fixed; color: #ff4d4d; font-size: 24px; animation: floatUp 4s linear forwards; z-index: 999; pointer-events: none;}
+        .stack-buttons { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <div id="page1" class="card">
+        <div class="envelope-wrapper" onclick="nextPage('page2')">
+            <div class="envelope-flap"></div>
+            <div class="envelope-pocket"></div>
+            <div class="letter-paper"><span>❤️</span></div>
+        </div>
+        <h1>For You</h1>
+        <p>Ada Surat buat kamu, sentuh amplopnya ya!</p>
+    </div>
+
+    <div id="page2" class="card hidden">
+        <div class="gif-container"><img src="https://media.tenor.com/kw2xrhnN1U8AAAAi/tkthao219-bubududu.gif"></div>
+        <p>Isinya puisi sihhhh, Mau lanjut baca??</p>
+        <div style="display:flex; justify-content:center; gap:15px; margin-top:20px;">
+            <button class="btn-style btn-primary" onclick="nextPage('page3')">Mauu</button>
+            <button class="btn-style btn-secondary" id="movingBtn">Malas deh</button>
+        </div>
+    </div>
+
+    <div id="page3" class="card hidden">
+        <div class="gif-container"><img src="https://media.tenor.com/0imRtuzqccIAAAAi/bubu-dudu-flower-gift.gif"></div>
+        <div>
+            <div class="poetic-text">
+                You’re the flower people try to find,<br>
+                I’m the winner they all left behind.<br>
+                <br>
+                You smile once, and there it goes—<br>
+                my calm, my plan, my composed prose.<br>
+                <br>
+                No roses needed, no grand display,<br>
+                you blooming near me makes my day.<br>
+                <br>asekkk<br>
+            </div>
+        </div>
+        <button class="btn-style btn-primary" onclick="nextPage('page4')">Lanjut ></button>
+    </div>
+
+    <div id="page4" class="card hidden">
+        <div class="gif-container"><img id="mainGif" src="https://media.tenor.com/UVHbwRHMSCgAAAAi/bubu-dudu-sseeyall.gif"></div>
+        <h1>Will you be my Valentine?</h1>
+        <p>Please say yes! 🥺</p>
+        
+        <div class="btn-row">
+            <button id="yesBtn" class="btn-style btn-primary">YES</button>
+            <button id="noBtn" class="btn-style btn-secondary">NO</button>
+        </div>
+    </div>
+
+    <div id="page5" class="card hidden">
+        <div class="gif-container"><img src="https://media1.tenor.com/m/pN7xf12qQcwAAAAC/cuddle-cute.gif"></div>
+        <h1>Yayyyy! Sudah ku dugaa! ❤️</h1>
+        <p>Happy Valentine's Day, Cayanggg</p>
+        <div class="stack-buttons">
+            <button class="btn-style btn-secondary" onclick="nextPage('page-memories')">📸 Our Memories</button>
+            <button class="btn-style btn-secondary" onclick="nextPage('page-letter')">💌 Secret Letter</button>
+            <button class="btn-style btn-primary" onclick="nextPage('page-gift')">🎁 Buka Kado</button>
+        </div>
+    </div>
+
+    <div id="page-memories" class="card hidden">
+        <h1>Our Memories</h1>
+        <div class="polaroid-grid">
+            <div class="polaroid" style="--rotation: -5deg;"><img src="foto/foto 1.jpg"></div>
+            <div class="polaroid" style="--rotation: 3deg;"><img src="foto/foto 2.jpeg"></div>
+            <div class="polaroid" style="--rotation: -2deg;"><img src="foto/foto 3.jpeg"></div>
+            <div class="polaroid" style="--rotation: 4deg;"><img src="foto/foto 4.jpeg"></div>
+            <div class="polaroid" style="--rotation: -3deg;"><img src="foto/foto 7.jpeg"></div>
+            <div class="polaroid" style="--rotation: 2deg;"><img src="foto/foto 5.jpeg"></div>
+        </div>
+        <button class="btn-style btn-secondary" onclick="nextPage('page5')">Kembali</button>
+    </div>
+
+    <div id="page-letter" class="card hidden">
+        <h1>Secret Letter 🤫</h1>
+        <div style="text-align: left; background: #fffaf0; padding: 20px; border-radius: 10px; border: 2px dashed #ffcccc; margin-bottom: 20px;">
+            <p style="margin-bottom: 10px; font-weight: bold;">For : Ryana, ❤️</p>
+            <p>
+                Sebenernya gak butuh hari Valentine buat bilang ini, tapi mumpung ada momennya...
+                <br><br>
+                Terima kasih udah jadi alasan aku senyum-senyum sendiri liat HP. Terima kasih udah selalu ada.
+                Dunia rasanya jauh lebih menyenangkan kalau ada kamu.
+                <br><br>
+                Jangan bosen sama aku ya, soalnya aku gak bakal bosen sama kamu. Happy Valentine's Day! 🌹
+            </p>
+            <p style="text-align: right; font-weight: bold;">- Love, Afa.</p>
+        </div>
+        <button class="btn-style btn-secondary" onclick="nextPage('page5')">Kembali</button>
+    </div>
+
+    <div id="page-gift" class="card hidden">
+        <h1>Kado Buat Kamu</h1>
+        <div class="gift-area" onclick="openGift()">
+            <img id="gift-box" src="https://media.tenor.com/Myfbtk1gOAgAAAAi/h%E1%BB%99p-qu%C3%A0-h%C3%A0ng-rong.gif">
+            <img id="gift-flower" class="flower-hidden" src="https://media.tenor.com/kZzow5agOnkAAAAi/flowers.gif">
+        </div>
+        <button class="btn-style btn-secondary" onclick="nextPage('page5')">Kembali</button>
+    </div>
+
+    <script>
+        function nextPage(id) {
+            document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+            document.getElementById(id).classList.remove('hidden');
+
+            // Reset posisi tombol saat pindah halaman
+            if(id === 'page4') resetButtons();
+        }
+
+        // --- TOMBOL GAK (Page 3) ---
+        const movingBtn = document.getElementById('movingBtn');
+        const page3 = document.getElementById('page3');
+        function moveBtn() {
+            const rect = page3.getBoundingClientRect();
+            const x = Math.random() * (rect.width - 520) - (rect.width/2 - 200);
+            const y = Math.random() * (rect.height - 500) - (rect.height/2 - 260);
+            movingBtn.style.transform = `translate(${x}px, ${y}px)`;
+        }
+        movingBtn.addEventListener('mouseover', moveBtn);
+        movingBtn.addEventListener('click', moveBtn);
+
+        // --- LOGIKA UTAMA (PAGE 4 - REVISI WINDOW BOUNDARY) ---
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const mainGif = document.getElementById('mainGif');
+            
+        let clickCount = 0;
+        const noTexts = ["Yakin?", "Beneran?", "Ah ko bohong", "Yes aja yaa??", "Ayolahh", "Ko nda kasian kah sama saya", "PWISSSS🥺", "Stop tekan akuu", "JANGANNN SENTUHH AKUU", "NOOOOOO"];
+        const sadGifs = [
+            "https://media1.tenor.com/m/HyJM0AHnnKUAAAAC/milk-mocha.gif",
+            "https://media.tenor.com/3OnEyI7LelQAAAAi/milk-and-mocha.gif",
+            "https://media1.tenor.com/m/CgF3nIB_etgAAAAC/bear-cute.gif",
+            "https://media.tenor.com/F4beteoaDrsAAAAi/please-cute.gif",
+            "https://media1.tenor.com/m/ViqKvHcmPQEAAAAC/please.gif",
+            "https://media1.tenor.com/m/2z9GCZKvuf0AAAAC/erm-fingers.gif"
+        ];
+
+        function resetButtons() {
+            clickCount = 0;
+            yesBtn.classList.remove('full-screen-yes');
+            yesBtn.style.transform = 'scale(1)';
+            yesBtn.innerText = 'YES!';
+            noBtn.style.display = 'block';
+            noBtn.style.transform = 'translate(0, 0)'; 
+            noBtn.innerText = 'NO';
+            document.body.style.backgroundColor = "#ffcccc";
+        }
+
+        noBtn.addEventListener('click', () => {
+            clickCount++;
+            
+            if(clickCount < 10) { 
+                // 1. Ubah Teks & Gif
+                noBtn.innerText = noTexts[clickCount % noTexts.length];
+                mainGif.src = sadGifs[clickCount % sadGifs.length];
+                
+                // 2. LOGIKA YES MEMBESAR
+                // Scale faktor
+                let scaleVal = 1 + (clickCount * 2.3); 
+                yesBtn.style.transform = `scale(${scaleVal})`;
+                
+                // 3. LOGIKA DETEKSI TEPI LAYAR (WINDOW BOUNDARY)
+                
+                // Dimensi Dasar
+                const baseWidth = yesBtn.offsetWidth;
+                const baseHeight = yesBtn.offsetHeight;
+                const noBtnWidth = noBtn.offsetWidth;
+                const noBtnHeight = noBtn.offsetHeight;
+                
+                // Lebar Visual YES saat ini
+                const currentYesWidth = baseWidth * scaleVal;
+                const currentYesHeight = baseHeight * scaleVal;
+                
+                // Jarak celah asli (gap CSS)
+                const gap = 20;
+
+                // -- PERHITUNGAN HORIZONTAL --
+                // Seberapa jauh sisi kanan YES melebar dari pusat
+                const yesRightEdgeFromCenter = currentYesWidth / 2;
+                
+                // Posisi ujung kanan tombol NO (jika ditaruh di samping YES)
+                // Pusat Layar -> Setengah Lebar YES -> Gap -> Lebar NO
+                const predictedNoRightEdge = yesRightEdgeFromCenter + gap + noBtnWidth;
+                
+                // Batas layar kanan (dari tengah layar)
+                // window.innerWidth / 2 adalah jarak dari tengah ke tepi layar
+                const windowLimitRight = (window.innerWidth / 2) - 20; // Kurangi 20px buat padding aman
+
+                // -- KEPUTUSAN --
+                
+                if (predictedNoRightEdge > windowLimitRight) {
+                    // KASUS A: SUDAH MENTOK LAYAR KANAN -> PINDAH KE ATAS
+                    
+                    // Hitung seberapa tinggi YES melebar ke atas
+                    const expansionUp = (currentYesHeight - baseHeight) / 2;
+                    
+                    // Geser NO ke atas melewati YES + Tinggi NO + Buffer dikit
+                    const moveUp = expansionUp + noBtnHeight + 20;
+                    
+                    // X = 0 (Biar balik ke tengah), Y = Negatif (Naik)
+                    noBtn.style.transform = `translate(0px, -${moveUp}px)`;
+
+                } else {
+                    // KASUS B: MASIH MUAT DI KANAN -> GESER KANAN BIASA
+                    
+                    // Hitung seberapa jauh YES melebar ke kanan dari ukuran aslinya
+                    const expansionRight = (currentYesWidth - baseWidth) / 2;
+                    
+                    // Geser NO sejauh luapan YES
+                    if (expansionRight > gap) {
+                        const moveRight = expansionRight - gap + 10;
+                        noBtn.style.transform = `translate(${moveRight}px, 0px)`;
+                    } else {
+                        // Belum nyenggol
+                        noBtn.style.transform = `translate(0px, 0px)`;
+                    }
+                }
+
+            } else {
+                // FINAL STEP -> Full Screen
+                yesBtn.classList.add('full-screen-yes');
+                yesBtn.innerText = "YES GAK LU?! 🫵😊";
+                noBtn.style.display = 'none'; 
+            }
+        });
+
+        yesBtn.addEventListener('click', () => {
+            nextPage('page5');
+            resetButtons();
+        });
+
+        // --- KADO ---
+        let giftOpened = false;
+        function openGift() {
+            if(giftOpened) return;
+            const box = document.getElementById('gift-box');
+            const flower = document.getElementById('gift-flower');
+            
+            // Hapus efek hover biar gak aneh pas dibuka
+            document.querySelector('.gift-area').style.pointerEvents = 'none';
+
+            box.style.opacity = '0';
+            setTimeout(() => {
+                flower.classList.remove('flower-hidden');
+                flower.classList.add('flower-shown');
+                createHearts();
+            }, 300);
+            giftOpened = true;
+        }
+
+        function createHearts() {
+            for(let i=0; i<30; i++) {
+                const heart = document.createElement('div');
+                heart.innerText = '❤️';
+                heart.className = 'floating-heart';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.bottom = '-50px';
+                heart.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 5000);
+            }
+        }
+    </script>
+</body>
+</html>
